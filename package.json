@@ -1,5 +1,5 @@
 {
-  "name": "code-index",
+  "name": "@ibrahimbanat/code-index",
   "version": "0.2.1",
   "main": "dist/index.js",
   "scripts": {
@@ -38,6 +38,9 @@
     "typescript": "^7.0.2"
   },
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "code-index": "dist/cli.js"
   },

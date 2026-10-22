@@ -12,6 +12,9 @@ import { BUILTIN_PLUGINS, dbPathFor, openEngine } from './index.js';
 import type { TypeScriptPlugin } from './plugins/typescript/index.js';
 
 const CONFIG_FILE = '.codeindex.json';
+const PACKAGE_NAME = (
+  JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8')) as { name: string }
+).name;
 const SERVER_NAME = 'code-index';
 const NOISY = /(^|\/)(migrations?|tests?|__tests__|__mocks__|fixtures|stories|coverage|generated|public|static|assets|web\/js|web\/css|\.next|out)$/;
 
@@ -208,12 +211,15 @@ export async function runInit(rootArg: string | undefined, yes: boolean): Promis
     const how = bail(await p.select({
       message: 'How should clients start the server?',
       options: [
+        { value: 'npm', label: `npx ${PACKAGE_NAME}`, hint: 'shareable; always the published version' },
         { value: 'local', label: 'From this checkout', hint: `node ${localCli} — personal setups` },
         { value: 'git', label: 'npx from a git URL', hint: 'shareable; teammates need repo access' },
         { value: 'global', label: 'Global binary `code-index`', hint: 'after `npm i -g` / `npm link`' },
       ],
     }));
-    if (how === 'local') {
+    if (how === 'npm') {
+      launch = { command: 'npx', args: ['-y', PACKAGE_NAME, 'mcp'] };
+    } else if (how === 'local') {
       if (!existsSync(localCli)) p.log.warn(`${localCli} does not exist yet — run \`npm run build\` in the code-index repo.`);
       launch = { command: 'node', args: [localCli, 'mcp'] };
     } else if (how === 'git') {

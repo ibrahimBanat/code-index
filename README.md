@@ -28,8 +28,8 @@ skips the outline. Reproduce with `npx tsx scripts/bench.ts <root> <file>::<symb
 ## Install
 
 ```bash
-npx code-index init            # set up the repo in the current directory
-npm i -g code-index            # or install the `code-index` command globally
+npx @ibrahimbanat/code-index init            # set up the repo in the current directory
+npm i -g @ibrahimbanat/code-index            # or install the `code-index` command globally
 ```
 
 From source: `npm install` (the `prepare` script builds `dist/`).
@@ -39,8 +39,8 @@ Requires Node ≥ 20. better-sqlite3 is pinned to 11.x: 13.x segfaults on Node 2
 ## Set up a repo: `code-index init`
 
 ```bash
-npx code-index init --root /path/to/repo        # interactive
-npx code-index init --root /path/to/repo --yes  # accept detected defaults
+npx @ibrahimbanat/code-index init --root /path/to/repo        # interactive
+npx @ibrahimbanat/code-index init --root /path/to/repo --yes  # accept detected defaults
 ```
 
 The wizard scans the repo and asks:
@@ -51,7 +51,7 @@ The wizard scans the repo and asks:
 4. **Token budgets**: lean / balanced / generous / custom.
 5. **MCP tools** to expose.
 6. **MCP clients** to register: Claude Code (project `.mcp.json` or user scope), Cursor,
-   VS Code, Codex; and how they launch the server (this checkout, `npx` from git, or a global binary).
+   VS Code, Codex; and how they launch the server (`npx` from npm, `npx` from git, this checkout, or a global binary).
 7. **Agent instructions**: an idempotent block in `AGENTS.md`, `CLAUDE.md` or a Cursor rule.
 
 It shows a summary, writes only after you confirm, and can build the index at the end.
@@ -61,7 +61,7 @@ It shows a summary, writes only after you confirm, and can build the index at th
 Claude Code, from the repo you want indexed:
 
 ```bash
-claude mcp add code-index -- npx -y code-index mcp
+claude mcp add code-index -- npx -y @ibrahimbanat/code-index mcp
 ```
 
 Cursor / other clients (`mcp.json`):
@@ -69,7 +69,7 @@ Cursor / other clients (`mcp.json`):
 ```json
 { "mcpServers": { "code-index": {
     "command": "npx",
-    "args": ["-y", "code-index", "mcp", "--root", "/path/to/repo"] } } }
+    "args": ["-y", "@ibrahimbanat/code-index", "mcp", "--root", "/path/to/repo"] } } }
 ```
 
 The server answers at once and indexes in the background; tools wait for the first pass.
