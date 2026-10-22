@@ -12,14 +12,15 @@ code_refs     graph: callers, subclasses, dispatchers, routes ... (in / out)
 code_search   ranked, camelCase-aware search over names, fqns and doc summaries
 ```
 
-Measured on the Syarah monorepo (7,477 PHP files, full index 10.6 s, incremental ~0.3 s):
+Measured on a production Yii2 monorepo (~7,500 PHP files, full index ~11 s, incremental ~0.3 s),
+in tokens:
 
 | target | whole file | outline | symbol | saved (outline + symbol) |
 |---|---:|---:|---:|---:|
-| `CPostOnline.php::getMake` | 45,434 | 5,798 | 53 | 87% |
-| `OnlineFinanceOrder.php::rules` | 53,914 | 7,631 | 4,682 | 77% |
-| `FinanceAutoRouteRunner.php::assignBank` | 12,504 | 1,425 | 240 | 87% |
-| `InfoBipHelper.php::sendWhatsappMessage` | 14,365 | 1,026 | 2,155 | 78% |
+| relation getter in a 4,800-line ActiveRecord model | 45,434 | 5,798 | 53 | 87% |
+| `rules()` of a large ActiveRecord model | 53,914 | 7,631 | 4,682 | 77% |
+| one method of a ~1,100-line service class | 12,504 | 1,425 | 240 | 87% |
+| one method of a ~1,000-line helper | 14,365 | 1,026 | 2,155 | 78% |
 
 That is the pessimistic path (full outline, then symbol). `code_search` → `code_symbol`
 skips the outline. Reproduce with `npx tsx scripts/bench.ts <root> <file>::<symbol> ...`.
@@ -27,17 +28,19 @@ skips the outline. Reproduce with `npx tsx scripts/bench.ts <root> <file>::<symb
 ## Install
 
 ```bash
-npm install
-npm run build
+npx code-index init            # set up the repo in the current directory
+npm i -g code-index            # or install the `code-index` command globally
 ```
+
+From source: `npm install` (the `prepare` script builds `dist/`).
 
 Requires Node ≥ 20. better-sqlite3 is pinned to 11.x: 13.x segfaults on Node 22.7 / macOS.
 
 ## Set up a repo: `code-index init`
 
 ```bash
-node dist/cli.js init --root /path/to/repo      # interactive
-node dist/cli.js init --root /path/to/repo --yes # accept detected defaults
+npx code-index init --root /path/to/repo        # interactive
+npx code-index init --root /path/to/repo --yes  # accept detected defaults
 ```
 
 The wizard scans the repo and asks:
@@ -58,15 +61,15 @@ It shows a summary, writes only after you confirm, and can build the index at th
 Claude Code, from the repo you want indexed:
 
 ```bash
-claude mcp add code-index -- node /path/to/code-index/dist/cli.js mcp
+claude mcp add code-index -- npx -y code-index mcp
 ```
 
 Cursor / other clients (`mcp.json`):
 
 ```json
 { "mcpServers": { "code-index": {
-    "command": "node",
-    "args": ["/path/to/code-index/dist/cli.js", "mcp", "--root", "/path/to/repo"] } } }
+    "command": "npx",
+    "args": ["-y", "code-index", "mcp", "--root", "/path/to/repo"] } } }
 ```
 
 The server answers at once and indexes in the background; tools wait for the first pass.
@@ -76,17 +79,17 @@ never go stale after an edit.
 ## CLI
 
 ```bash
-code-index index                        --root ../syarah
-code-index map common --depth 2         --root ../syarah
-code-index outline common/models/CPostOnline.php --match price
-code-index symbol 'CPostOnline::getMake'
-code-index refs component:notifications
-code-index refs 'FinanceAutoRouteRunner::assignBank' --out
-code-index search "auto route bank" --kind method
+code-index index                         --root ../my-app
+code-index map common --depth 2          --root ../my-app
+code-index outline common/models/Order.php --match price
+code-index symbol 'Order::getCustomer'
+code-index refs component:mailer
+code-index refs 'CheckoutService::placeOrder' --out
+code-index search "place order" --kind method
 ```
 
 `--budget N` caps any output at about N tokens; cut output says how to narrow the query.
-`./ci.sh <command>` is a dev wrapper that runs from source against `../syarah`.
+`CI_ROOT=../my-app ./ci.sh <command>` is a dev wrapper that runs from source.
 
 The index is stored in `~/.cache/code-index/<repo>-<hash>.db` (override: `CODE_INDEX_DIR`),
 so nothing is written into the indexed repo.
@@ -120,7 +123,7 @@ Written by `init`, or by hand. Every key is optional.
 ```json
 {
   "enable": ["php", "yii2"],
-  "exclude": ["console/migrations/", "dashboard/web/js/"],
+  "exclude": ["console/migrations/", "backend/web/js/"],
   "pluginOptions": { "typescript": { "aliases": { "@hooks/": "src/hooks/" } } },
   "budgets": { "map": 800, "outline": 1200, "symbol": 2500, "refs": 1200, "search": 800 },
   "tools": ["code_map", "code_outline", "code_symbol", "code_refs", "code_search"],
