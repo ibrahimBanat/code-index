@@ -1,0 +1,33 @@
+{
+  "name": "code-index",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "mcp": "tsx src/cli.ts mcp",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Token-efficient structural code index (AST + hierarchical outline) with plugin languages/frameworks and an MCP server",
+  "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "better-sqlite3": "^11.10.0",
+    "tree-sitter-wasms": "^0.1.13",
+    "web-tree-sitter": "^0.22.6",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "type": "module",
+  "bin": {
+    "code-index": "dist/cli.js"
+  }
+}
