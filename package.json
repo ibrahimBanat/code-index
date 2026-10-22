@@ -1,16 +1,27 @@
 {
   "name": "code-index",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/cli.ts",
     "mcp": "tsx src/cli.ts mcp",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare": "tsc"
   },
-  "keywords": [],
+  "keywords": [
+    "mcp",
+    "ast",
+    "tree-sitter",
+    "code-index",
+    "ai-agents",
+    "php",
+    "yii2",
+    "typescript",
+    "nextjs"
+  ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "Token-efficient structural code index (AST + hierarchical outline) with plugin languages/frameworks and an MCP server",
   "dependencies": {
     "@clack/prompts": "^0.11.0",
@@ -29,5 +40,16 @@
   "type": "module",
   "bin": {
     "code-index": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ibrahimBanat/code-index.git"
   }
 }
